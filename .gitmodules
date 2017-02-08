@@ -1,0 +1,3 @@
+[submodule "drivers/htu21df"]
+	path = drivers/htu21df
+	url = https://github.com/dalexgray/RaspberryPI_HTU21DF

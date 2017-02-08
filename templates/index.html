@@ -1,0 +1,17 @@
+<html>
+<head>
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+<h1>piweather</h1>
+<p>Version {{ version }}</p>
+<img src="plot.png" alt="Rendering...">
+
+<form action="range_select_action" method="post">
+    <input type="submit" value="Display last hours:">
+    <input type="number" name="hours" min="0">
+</form>
+
+</body>
+</html>
