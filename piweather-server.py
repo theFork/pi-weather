@@ -19,6 +19,7 @@ style.use('ggplot')
 app = Flask(__name__)
 db = DatabaseReader(PiWeather.DATABASE_PATH)
 
+
 @app.route('/')
 def index():
     # Read all data available from the database
@@ -40,6 +41,7 @@ def plot_range():
 
     return render_template('index.html', version=PiWeather.VERSION)
 
+
 @app.route('/plot.png')
 def plot_full_image():
 
@@ -49,10 +51,12 @@ def plot_full_image():
     fig = Figure()
     temp_ax=fig.add_subplot(111)
     hum_ax = temp_ax.twinx()
+    brightness_ax = temp_ax.twinx()
 
     # Define plots
     temp_ax.plot_date(db.timestamps, db.temperature_values, 'r-')
     hum_ax.plot_date(db.timestamps, db.humidity_values, 'b-')
+    brightness_ax.plot_date(db.timestamps, db.brightness_values, 'y-')
 
     # Format x-axis
     temp_ax.xaxis.set_major_formatter(DateFormatter('%Y-%m-%d %H:%M'))
