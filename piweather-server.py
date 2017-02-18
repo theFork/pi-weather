@@ -2,7 +2,7 @@
 
 from flask import Flask, redirect, render_template, request, make_response, url_for
 
-import datetime
+import datetime, time
 from io import BytesIO
 
 from database_reader import DatabaseReader
@@ -37,7 +37,10 @@ def plot_range():
         hours_to_display = int(request.form['hours'])
 
     # Read only data requested
+    start_time = time.time()
     db.read_last_hours(hours_to_display)
+    duration_ms = (time.time() - start_time) * 1000
+    print('DB read duration: %.2f ms' % duration_ms)
 
     return render_template('index.html', version=PiWeather.VERSION)
 
@@ -48,6 +51,7 @@ def plot_full_image():
     # The requested data range has already been red from the DB
 
     # Create figure
+    start_time = time.time()
     fig = Figure()
     temp_ax=fig.add_subplot(111)
     hum_ax = temp_ax.twinx()
@@ -74,6 +78,11 @@ def plot_full_image():
     canvas.print_png(png_output)
     response=make_response(png_output.getvalue())
     response.headers['Content-Type'] = 'image/png'
+
+    # Print duration
+    duration_ms = (time.time() - start_time) * 1000
+    print('Plotting duration: %.2f ms' % duration_ms)
+
     return response
 
 
