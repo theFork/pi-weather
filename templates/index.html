@@ -1,12 +1,17 @@
 <html>
 <head>
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='jquery.jqplot.min.css') }}" />
+    <script language="javascript" type="text/javascript" src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('static', filename='jquery.jqplot.min.js') }}"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('static', filename='jqplot.dateAxisRenderer.js') }}"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('static', filename='plot.js') }}"></script>
 </head>
 
 <body>
 <h1>piweather</h1>
 <p>Version {{ version }}</p>
-<img src="plot.png" alt="Rendering...">
+<div id="chart" style="height:400px;width:800px; "></div>
 
 <form action="range_select_action" method="post">
     <input type="submit" value="Display last hours:">

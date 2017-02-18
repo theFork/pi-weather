@@ -1,20 +1,12 @@
 #!/usr/bin/python3
 
-from flask import Flask, redirect, render_template, request, make_response, url_for
+from flask import Flask, jsonify, redirect, render_template, request, make_response, url_for
 
 import datetime, time
 from io import BytesIO
 
 from database_reader import DatabaseReader
 from piweather import PiWeather
-
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from matplotlib.figure import Figure
-from matplotlib.dates import DateFormatter
-from matplotlib import style
-
-# Mathplotlib style
-style.use('ggplot')
 
 app = Flask(__name__)
 db = DatabaseReader(PiWeather.DATABASE_PATH)
@@ -45,45 +37,15 @@ def plot_range():
     return render_template('index.html', version=PiWeather.VERSION)
 
 
-@app.route('/plot.png')
-def plot_full_image():
-
-    # The requested data range has already been red from the DB
-
-    # Create figure
-    start_time = time.time()
-    fig = Figure()
-    temp_ax=fig.add_subplot(111)
-    hum_ax = temp_ax.twinx()
-    brightness_ax = temp_ax.twinx()
-
-    # Define plots
-    temp_ax.plot_date(db.timestamps, db.temperature_values, 'r-')
-    hum_ax.plot_date(db.timestamps, db.humidity_values, 'b-')
-    brightness_ax.plot_date(db.timestamps, db.brightness_values, 'y-')
-
-    # Format x-axis
-    temp_ax.xaxis.set_major_formatter(DateFormatter('%Y-%m-%d %H:%M'))
-    fig.autofmt_xdate()
-
-    # Format and label y-axes
-    temp_ax.set_ylabel('T [°C]', color='r')
-    temp_ax.tick_params('y', colors='r')
-    hum_ax.set_ylabel('Rel. Hum. [%]', color='b')
-    hum_ax.tick_params('y', colors='b')
-
-    # Plot and return PNG
-    canvas=FigureCanvas(fig)
-    png_output = BytesIO()
-    canvas.print_png(png_output)
-    response=make_response(png_output.getvalue())
-    response.headers['Content-Type'] = 'image/png'
-
-    # Print duration
-    duration_ms = (time.time() - start_time) * 1000
-    print('Plotting duration: %.2f ms' % duration_ms)
-
-    return response
+@app.route('/get_data')
+def get_data():
+    # The requested data range has already been read from the DB
+    json = jsonify(timestamp=db.timestamps,
+                   temperature=db.temperature_values,
+                   humidity=db.humidity_values,
+                   brightness=db.brightness_values)
+    print(json)
+    return json
 
 
 if __name__ == '__main__':
