@@ -54,3 +54,17 @@ class DatabaseReader:
         db_con.close()
 
         return (timestamps, temperature_values, humidity_values, brightness_values)
+
+
+    def get_available_timeslot(self):
+        """Returns the first and last timestamp from the database.
+
+        Returns:
+            (min_timestamp, max_timestamp)
+        """
+        db_con = sqlite3.connect(self.filename)
+        db_cur = db_con.cursor()
+        min_timestamp = db_cur.execute("SELECT MIN(timestamp) FROM weather").fetchone()
+        max_timestamp = db_cur.execute("SELECT MAX(timestamp) FROM weather").fetchone()
+        db_con.close()
+        return (min_timestamp, max_timestamp)

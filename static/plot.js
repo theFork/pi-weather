@@ -68,7 +68,42 @@ function plot_data() {
     });
 }
 
+function zero_pad(value) {
+    if (value < 10) {
+        value = '0' + value;
+    }
+    return value;
+}
+
+function pretty_print_unix_timestamp(stamp) {
+    date = new Date(stamp*1000);
+    year = date.getFullYear();
+    month = zero_pad(date.getMonth()+1);
+    day = zero_pad(date.getDate());
+    hours = zero_pad(date.getHours());
+    minutes = zero_pad(date.getMinutes());
+    return [year, month, day].join('-') + ' ' + [hours, minutes].join(':');
+};
+
+function timeslotChanged(event, ui) {
+    start = pretty_print_unix_timestamp($("#timeslot_slider").slider("values", 0));
+    end = pretty_print_unix_timestamp($("#timeslot_slider").slider("values", 1));
+    $("#timeslot_text_start").text(start);
+    $("#timeslot_text_end").text(end);
+};
+
 $(document).ready(function() {
+    $.getJSON("/get_available_timeslot", function(data) {
+        min_ts = data[0][0]
+        max_ts = data[1][0]
+        left_slider = max_ts-60*60*24*7
+        $("#timeslot_slider").slider({
+            range: true,
+            min: min_ts,
+            max: max_ts,
+            values: [left_slider, max_ts],
+            slide: timeslotChanged
+        });
+    });
     plot_data();
-//    setInterval(plot_data, 3000);
 });

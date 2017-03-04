@@ -1,24 +1,28 @@
+<!DOCTYPE html>
 <html>
 <head>
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='jquery.jqplot.min.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='jquery.jqplot.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='jquery-ui.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='jquery-ui.structure.min.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='jquery-ui.theme.min.css') }}">
     <script language="javascript" type="text/javascript" src="{{ url_for('static', filename='jquery.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('static', filename='jquery.jqplot.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('static', filename='jqplot.dateAxisRenderer.js') }}"></script>
+    <script language="javascript" type="text/javascript" src="{{ url_for('static', filename='jquery-ui.min.js') }}"></script>
     <script language="javascript" type="text/javascript" src="{{ url_for('static', filename='plot.js') }}"></script>
 </head>
-
 <body>
-<h1>pi-weather</h1>
-<p>Version {{ version }}</p>
-<hr>
-<div id="chart"></div>
-<!--
-<form action="range_select_action" method="post">
-    <input type="submit" value="Display last hours:">
-    <input type="number" name="hours" min="0">
-</form>
--->
-
+    <h1>pi-weather</h1>
+    <p>Version {{ version }}</p>
+    <hr>
+    <div id="chart"></div>
+    <div id="timeslot_select">
+        <div id="timeslot_slider"></div>
+        <ul>
+            <li id="timeslot_text_start"></li>
+            <li id="timeslot_text_end"></li>
+        </ul>
+    </div>
 </body>
 </html>

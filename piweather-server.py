@@ -2,7 +2,7 @@
 """Pi Weather Server
 """
 
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, url_for
 
 #import datetime, time
 #from io import BytesIO
@@ -12,7 +12,6 @@ from piweather import PiWeather
 
 _APP = Flask(__name__)
 _DB = DatabaseReader(PiWeather.DATABASE_PATH, 1000)
-
 
 @_APP.route('/')
 def index():
@@ -32,9 +31,13 @@ def get_data():
                    temperature=temperature_values,
                    humidity=humidity_values,
                    brightness=brightness_values)
-    print(json)
     return json
 
+@_APP.route('/get_available_timeslot')
+def get_available_timeslot():
+    """Return a json object containing available timestamp range
+    """
+    return jsonify(_DB.get_available_timeslot())
 
 if __name__ == '__main__':
     # Start Flask
