@@ -2,7 +2,7 @@
 """Pi Weather Server
 """
 
-from flask import Flask, jsonify, render_template, url_for
+from flask import Flask, jsonify, render_template, request, url_for
 
 #import datetime, time
 #from io import BytesIO
@@ -23,8 +23,10 @@ def index():
 def get_data():
     """Fetch data TODO
     """
+    start = request.args.get('start')
+    end = request.args.get('end')
     # Read all data available from the database
-    (timestamps, temperature_values, humidity_values, brightness_values) = _DB.fetch_time_slot()
+    (timestamps, temperature_values, humidity_values, brightness_values) = _DB.fetch_time_slot(start, end)
 
     # The requested data range has already been read from the DB
     json = jsonify(timestamp=timestamps,

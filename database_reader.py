@@ -42,7 +42,7 @@ class DatabaseReader:
         if start == 0 and end == 0:
             db_cur.execute(self._QUERY)
         else:
-            db_cur.execute(self._QUERY + "WHERE ?<=timestamp AND timestamp<=?", (start, end))
+            db_cur.execute(self._QUERY + " WHERE ?<=timestamp AND timestamp<=?", (start, end))
 
         for row in db_cur.fetchall():
             timestamps.append(datetime.datetime.fromtimestamp(row[0]))
