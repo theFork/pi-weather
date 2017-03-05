@@ -1,5 +1,6 @@
 """Database API
 """
+from math import ceil
 import datetime
 import sqlite3
 
@@ -7,8 +8,6 @@ class DatabaseReader:
     """This class provides an API to read temperature, humidity and brightness data from the
         database.
     """
-    _QUERY = "SELECT timestamp, temperature/100.0, humidity/100.0, brightness FROM weather"
-
     def __init__(self, filename, quantity):
         """Constructs a DatabaseReader.
 
@@ -19,7 +18,7 @@ class DatabaseReader:
         self.filename = filename
         self.quantity = quantity
 
-    def fetch_time_slot(self, start=0, end=0):
+    def fetch_time_slot(self, start, end):
         """Reads temperature, humidity and brightness data in the specified time slot.
 
         Args:
@@ -38,23 +37,27 @@ class DatabaseReader:
         db_con = sqlite3.connect(self.filename)
         db_cur = db_con.cursor()
 
-        # Read all data if not timestamps were provided
-        if start == 0 and end == 0:
-            db_cur.execute(self._QUERY)
-        else:
-            db_cur.execute(self._QUERY + " WHERE ?<=timestamp AND timestamp<=?", (start, end))
+        # Count data points and compute row skip
+        query = "SELECT COUNT(*) FROM weather"
+        query += " WHERE ? <= timestamp AND timestamp <= ?"
+        db_cur.execute(query, (start, end))
+        skip = ceil(db_cur.fetchone()[0] / self.quantity)
 
+        # Read data using time filter and row skip
+        query = "SELECT timestamp, temperature/100.0, humidity/100.0, brightness FROM weather"
+        query += " WHERE ? <= timestamp AND timestamp <= ?"
+        query += " AND rowid % ? = 0"
+        db_cur.execute(query, (start, end, skip))
+
+        # Re-pack data to tuple of arrays
         for row in db_cur.fetchall():
             timestamps.append(datetime.datetime.fromtimestamp(row[0]))
             temperature_values.append(row[1])
             humidity_values.append(row[2])
             brightness_values.append(row[3])
 
-        # Close database
         db_con.close()
-
         return (timestamps, temperature_values, humidity_values, brightness_values)
-
 
     def get_available_timeslot(self):
         """Returns the first and last timestamp from the database.
