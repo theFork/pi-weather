@@ -1,8 +1,8 @@
 """Database API
 """
 from math import ceil
-import datetime
-import sqlite3
+from datetime import datetime
+from sqlite3 import connect
 
 class DatabaseReader:
     """This class provides an API to read temperature, humidity and brightness data from the
@@ -34,7 +34,7 @@ class DatabaseReader:
         brightness_values = []
 
         # Open database
-        db_con = sqlite3.connect(self.filename)
+        db_con = connect(self.filename)
         db_cur = db_con.cursor()
 
         # Count data points and compute row skip
@@ -51,7 +51,7 @@ class DatabaseReader:
 
         # Re-pack data to tuple of arrays
         for row in db_cur.fetchall():
-            timestamps.append(datetime.datetime.fromtimestamp(row[0]))
+            timestamps.append(datetime.fromtimestamp(row[0]))
             temperature_values.append(row[1])
             humidity_values.append(row[2])
             brightness_values.append(row[3])
@@ -65,7 +65,7 @@ class DatabaseReader:
         Returns:
             (min_timestamp, max_timestamp)
         """
-        db_con = sqlite3.connect(self.filename)
+        db_con = connect(self.filename)
         db_cur = db_con.cursor()
         db_cur.execute("SELECT MIN(timestamp) FROM weather")
         min_timestamp = db_cur.fetchone()[0]

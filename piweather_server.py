@@ -2,22 +2,20 @@
 """Pi Weather Server
 """
 
-from flask import Flask, jsonify, render_template, request, url_for
-
-#import datetime, time
-#from io import BytesIO
+from flask import Flask, jsonify, render_template, request
+from flask import url_for # pylint: disable=unused-import
 
 from database_reader import DatabaseReader
-from piweather import PiWeather
+from piweather import DATABASE_PATH, VERSION
 
 _APP = Flask(__name__)
-_DB = DatabaseReader(PiWeather.DATABASE_PATH, 1000)
+_DB = DatabaseReader(DATABASE_PATH, 1000)
 
 @_APP.route('/')
 def index():
     """Responds with the rendered page template.
     """
-    return render_template('index.html', version=PiWeather.VERSION)
+    return render_template('index.html', version=VERSION)
 
 @_APP.route('/get_data')
 def get_data():
