@@ -64,7 +64,9 @@ class DatabaseReader:
         """
         db_con = sqlite3.connect(self.filename)
         db_cur = db_con.cursor()
-        min_timestamp = db_cur.execute("SELECT MIN(timestamp) FROM weather").fetchone()
-        max_timestamp = db_cur.execute("SELECT MAX(timestamp) FROM weather").fetchone()
+        db_cur.execute("SELECT MIN(timestamp) FROM weather")
+        min_timestamp = db_cur.fetchone()[0]
+        db_cur.execute("SELECT MAX(timestamp) FROM weather")
+        max_timestamp = db_cur.fetchone()[0]
         db_con.close()
         return (min_timestamp, max_timestamp)

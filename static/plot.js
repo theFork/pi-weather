@@ -105,8 +105,8 @@ function replot(event, ui) {
 $(document).ready(function() {
     $.getJSON("/get_available_timeslot", function(data) {
         // Initialize time selection slider
-        min_ts = data[0][0]
-        max_ts = data[1][0]
+        min_ts = data[0]
+        max_ts = data[1]
         left_slider = max_ts-60*60*24*7
         $("#timeslot_slider").slider({
             range:  true,
