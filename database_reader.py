@@ -72,4 +72,7 @@ class DatabaseReader:
         db_cur.execute("SELECT MAX(timestamp) FROM weather")
         max_timestamp = db_cur.fetchone()[0]
         db_con.close()
-        return (min_timestamp, max_timestamp)
+        result = dict()
+        result['start'] = min_timestamp
+        result['end'] = max_timestamp
+        return result

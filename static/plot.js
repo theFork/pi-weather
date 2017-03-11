@@ -105,21 +105,19 @@ function replot(event, ui) {
 $(document).ready(function() {
     $.getJSON("/get_available_timeslot", function(data) {
         // Initialize time selection slider
-        min_ts = data[0]
-        max_ts = data[1]
-        left_slider = max_ts-60*60*24*7
+        left_slider = data.end-60*60*24*7
         $("#timeslot_slider").slider({
             range:  true,
-            min:    min_ts,
-            max:    max_ts,
-            values: [left_slider, max_ts],
+            min:    data.start,
+            max:    data.end,
+            values: [left_slider, data.end],
             slide:  updateSliderLabels,
             stop:   replot
         });
         updateSliderLabels();
 
         // Initial plot
-        $.getJSON('/get_data?start=' + left_slider + '&end=' + max_ts, function(data) {
+        $.getJSON('/get_data?start=' + left_slider + '&end=' + data.end, function(data) {
             plot(data);
         });
     });
