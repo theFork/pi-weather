@@ -14,3 +14,7 @@ DATABASE_COLUMNS = tuple([TIMESTAMP_COLUMN,  \
                          HUMIDITY_COLUMN,   \
                          ROOM_TEMP_COLUMN,  \
                          WALL_TEMP_COLUMN])
+
+ROOM_TEMP_ADDR = '10-0008032dcf16'
+WALL_TEMP_ADDR_0 = '123'
+WALL_TEMP_ADDR_1 = '456'
