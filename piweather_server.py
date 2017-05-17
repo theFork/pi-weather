@@ -6,7 +6,7 @@ from flask import Flask, jsonify, render_template, request
 from flask import url_for # pylint: disable=unused-import
 
 from database_reader import DatabaseReader
-from piweather import DATABASE_PATH, VERSION
+from piweather_config import DATABASE_PATH, VERSION
 
 _APP = Flask(__name__)
 _DB = DatabaseReader(DATABASE_PATH, 1000)

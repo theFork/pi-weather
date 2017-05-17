@@ -6,7 +6,7 @@ from time import time
 
 from drivers.htu21df.HTU21DF import htu_reset, read_humidity, read_temperature
 from drivers.tsl256x.tsl256x import TSL256x
-from piweather import DATABASE_PATH
+from piweather_config import DATABASE_PATH
 
 def main():
     """Program entry point.
