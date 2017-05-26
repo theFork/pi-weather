@@ -24,13 +24,15 @@ def get_data():
     start = request.args.get('start')
     end = request.args.get('end')
     # Read all data available from the database
-    (timestamps, temperatures, humidities, brightnesses) = _DB.fetch_time_slot(start, end)
+    (timestamps, brightnesses, humidities, room_temperatures, wall_temperatures) = \
+        _DB.fetch_time_slot(start, end)
 
     # The requested data range has already been read from the DB
     json = jsonify(timestamp=timestamps,
-                   temperature=temperatures,
+                   brightness=brightnesses,
                    humidity=humidities,
-                   brightness=brightnesses)
+                   room_temperature=room_temperatures,
+                   wall_temperature=wall_temperatures)
     return json
 
 @_APP.route('/get_available_timeslot')

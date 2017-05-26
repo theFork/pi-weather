@@ -4,6 +4,8 @@ from math import ceil
 from datetime import datetime
 from sqlite3 import connect
 
+from piweather_config import DATABASE_COLUMNS, TIMESTAMP_COLUMN
+
 class DatabaseReader:
     """This class provides an API to read temperature, humidity and brightness data from the
         database.
@@ -26,12 +28,14 @@ class DatabaseReader:
             end         latest timestamp to read
 
         Returns:
-            (timestamps, temperature_values, humidity_values, brightness_values)
+            (timestamps, brightness_values, humidity_values, room_temperature_values, \
+             wall_temperature_values)
         """
         timestamps = []
-        temperature_values = []
-        humidity_values = []
         brightness_values = []
+        humidity_values = []
+        room_temperature_values = []
+        wall_temperature_values = []
 
         # Open database
         db_con = connect(self.filename)
@@ -39,25 +43,27 @@ class DatabaseReader:
 
         # Count data points and compute row skip
         query = "SELECT COUNT(*) FROM weather"
-        query += " WHERE ? <= timestamp AND timestamp <= ?"
-        db_cur.execute(query, (start, end))
+        query += " WHERE ? <= {0} AND {0} <= ?"
+        db_cur.execute(query.format(TIMESTAMP_COLUMN), (start, end))
         skip = ceil(db_cur.fetchone()[0] / self.quantity)
 
         # Read data using time filter and row skip
-        query = "SELECT timestamp, temperature/100.0, humidity/100.0, brightness FROM weather"
-        query += " WHERE ? <= timestamp AND timestamp <= ?"
+        query = "SELECT {0}, {1}, {2}, {3}, {4} FROM weather"
+        query += " WHERE ? <= {0} AND {0} <= ?"
         query += " AND rowid % ? = 0"
-        db_cur.execute(query, (start, end, skip))
+        db_cur.execute(query.format(*DATABASE_COLUMNS), (start, end, skip))
 
         # Re-pack data to tuple of arrays
         for row in db_cur.fetchall():
             timestamps.append(datetime.fromtimestamp(row[0]))
-            temperature_values.append(row[1])
+            brightness_values.append(row[1])
             humidity_values.append(row[2])
-            brightness_values.append(row[3])
+            room_temperature_values.append(row[3])
+            wall_temperature_values.append(row[4])
 
         db_con.close()
-        return (timestamps, temperature_values, humidity_values, brightness_values)
+        return (timestamps, brightness_values, humidity_values, room_temperature_values, \
+                wall_temperature_values)
 
     def get_available_timeslot(self):
         """Returns the first and last timestamp from the database.

@@ -3,21 +3,25 @@ function plot(data) {
         gridLineColor: 'rgb(200,200,200)',
         drawGridlines: true
     };
-    temperature_plot = []
+    brightness_plot = []
     for (var i=0; i<data.timestamp.length; ++i) {
-        temperature_plot.push([new Date(data.timestamp[i]), data.temperature[i]]);
+        brightness_plot.push([new Date(data.timestamp[i]), data.brightness[i]]);
     }
     humidity_plot = []
     for (var i=0; i<data.timestamp.length; ++i) {
         humidity_plot.push([new Date(data.timestamp[i]), data.humidity[i]]);
     }
-    brightness_plot = []
+    room_temperature_plot = []
     for (var i=0; i<data.timestamp.length; ++i) {
-        brightness_plot.push([new Date(data.timestamp[i]), data.brightness[i]]);
+        room_temperature_plot.push([new Date(data.timestamp[i]), data.room_temperature[i]]);
+    }
+    wall_temperature_plot = []
+    for (var i=0; i<data.timestamp.length; ++i) {
+        wall_temperature_plot.push([new Date(data.timestamp[i]), data.wall_temperature[i]]);
     }
 
     $('#chart').empty();
-    $.jqplot ('chart', [brightness_plot, temperature_plot, humidity_plot], {
+    $.jqplot ('chart', [brightness_plot, room_temperature_plot, humidity_plot], {
         axes: {
             xaxis: {
                 renderer: $.jqplot.DateAxisRenderer,

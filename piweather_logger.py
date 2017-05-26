@@ -4,9 +4,10 @@
 from sqlite3 import connect
 from time import time
 
-from drivers.htu21df.HTU21DF import htu_reset, read_humidity, read_temperature
+from drivers.ds1820 import read_temperature
+from drivers.htu21df.HTU21DF import htu_reset, read_humidity
 from drivers.tsl256x.tsl256x import TSL256x
-from piweather_config import DATABASE_PATH
+from piweather_config import DATABASE_COLUMNS, DATABASE_PATH
 
 def main():
     """Program entry point.
@@ -16,8 +17,9 @@ def main():
     tsl2560 = TSL256x()
 
     # Fetch measured values
-    temperature = int(read_temperature() * 100)
-    humidity = int(read_humidity() * 100)
+    room_temperature = int(read_temperature('10-0008032dcf16'))
+    wall_temperature = int(read_temperature('10-0008032dcf14'))
+    humidity = int(read_humidity())
     brightness = tsl2560.lux()
     timestamp = int(time())
 
@@ -27,15 +29,15 @@ def main():
 
     # Add table if necessary
     db_cursor.execute('CREATE TABLE IF NOT EXISTS weather'
-                      ' (timestamp   INTEGER,'
-                      '  temperature INTEGER,'
-                      '  humidity    INTEGER,'
-                      '  brightness  INTEGER)')
+                      ' ({} INTEGER,'
+                      '  {} INTEGER,'
+                      '  {} REAL,'
+                      '  {} REAL,'
+                      '  {} REAL)'.format(*DATABASE_COLUMNS))
 
     # Insert values
-    db_cursor.execute('INSERT INTO weather (timestamp, temperature, humidity, brightness)'
-                      '             VALUES (        ?,           ?,        ?,          ?)',
-                      (timestamp, temperature, humidity, brightness))
+    query = 'INSERT INTO weather ({}, {}, {}, {}, {}) VALUES (?,?,?,?,?)'.format(*DATABASE_COLUMNS)
+    db_cursor.execute(query, (timestamp, brightness, humidity, room_temperature, wall_temperature))
 
     # Commit transaction and close
     db_connection.commit()
