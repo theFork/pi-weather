@@ -15,13 +15,14 @@ function plot(data) {
     for (var i=0; i<data.timestamp.length; ++i) {
         room_temperature_plot.push([new Date(data.timestamp[i]), data.room_temperature[i]]);
     }
-    wall_temperature_plot = []
+    dew_point_plot = []
     for (var i=0; i<data.timestamp.length; ++i) {
-        wall_temperature_plot.push([new Date(data.timestamp[i]), data.wall_temperature[i]]);
+        dew_point = compute_dew(data.humidity[i], data.room_temperature[i]);
+        dew_point_plot.push([new Date(data.timestamp[i]), dew_point]);
     }
 
     $('#chart').empty();
-    $.jqplot ('chart', [brightness_plot, room_temperature_plot, humidity_plot], {
+    $.jqplot ('chart', [brightness_plot, room_temperature_plot, humidity_plot, dew_point_plot], {
         axes: {
             xaxis: {
                 renderer: $.jqplot.DateAxisRenderer,
@@ -67,6 +68,14 @@ function plot(data) {
             { // Humidity
                 yaxis: 'y2axis',
                 color: 'rgba(0, 0, 255, 0.6)',
+                showMarker: false,
+                rendererOptions: {
+                    smooth: true
+                },
+            },
+            { // Dew point
+                yaxis: 'yaxis',
+                color: 'rgba(127, 127, 0, 0.6)',
                 showMarker: false,
                 rendererOptions: {
                     smooth: true
