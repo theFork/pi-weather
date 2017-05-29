@@ -1,3 +1,7 @@
+// The plot object
+// Set in plot()
+var chart;
+
 function plot(data) {
     var grid = {
         gridLineColor: 'rgb(200,200,200)',
@@ -22,7 +26,10 @@ function plot(data) {
     }
 
     $('#chart').empty();
-    $.jqplot ('chart', [brightness_plot, room_temperature_plot, humidity_plot, dew_point_plot], {
+    chart = $.jqplot('chart', [brightness_plot,
+                               room_temperature_plot,
+                               humidity_plot,
+                               dew_point_plot], {
         axes: {
             xaxis: {
                 renderer: $.jqplot.DateAxisRenderer,
@@ -116,6 +123,10 @@ function replot(event, ui) {
 };
 
 $(document).ready(function() {
+    $(window).resize(function() {
+        chart.replot( { resetAxes: false } );
+    });
+
     $.getJSON("/get_available_timeslot", function(data) {
         // Initialize time selection slider
         left_slider = data.end-60*60*24*7
