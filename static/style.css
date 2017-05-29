@@ -1,6 +1,11 @@
+html {
+    height: 100%;
+}
+
 body {
-    font-family: sans-serif;
     background:  #eee;
+    font-family: sans-serif;
+    height:      95%;
 }
 
 a, h1, h2 {
@@ -14,7 +19,7 @@ h1, h2 {
 
 #chart {
     width:      90%;
-    height:     400px;
+    height:     66%;
     margin:     auto;
     margin-top: 2em;
 }
