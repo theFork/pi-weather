@@ -10,11 +10,71 @@ var start;
 // Set in updateSliderLabels()
 var end;
 
+var brightness_series = {
+    color: 'rgba(127, 127, 127, 0.3)',
+    showMarker: false,
+    shadow: false,
+    fill: true,
+};
+
+var room_temperature_series = {
+    yaxis: 'yaxis',
+    color: 'rgba(255, 0, 0, 0.6)',
+    showMarker: false,
+    rendererOptions: {
+        smooth: true
+    },
+};
+
+var humidity_series = {
+    yaxis: 'y2axis',
+    color: 'rgba(0, 0, 255, 0.6)',
+    showMarker: false,
+    rendererOptions: {
+        smooth: true
+    },
+};
+
+var dew_point_series = {
+    yaxis: 'yaxis',
+    color: 'rgba(127, 127, 0, 0.6)',
+    showMarker: false,
+    rendererOptions: {
+        smooth: true
+    },
+};
+
+var chart_config = {
+    axes: {
+        xaxis: {
+            renderer: $.jqplot.DateAxisRenderer,
+            rendererOptions: {
+                tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+                tickOptions: {
+                    angle: -45,
+                },
+            },
+        },
+        yaxis: {
+            min: 05,
+            max: 35,
+            tickInterval: 3,
+            label: 'Temperature [°C]',
+            labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+        },
+        y2axis: {
+            min: 25,
+            max: 75,
+            tickInterval: 5,
+            label: 'Humidity [%]',
+            labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+        }
+    },
+
+    series: [ brightness_series, room_temperature_series, humidity_series, dew_point_series ]
+};
+
 function plot(data) {
-    var grid = {
-        gridLineColor: 'rgb(200,200,200)',
-        drawGridlines: true
-    };
     brightness_plot = []
     for (var i=0; i<data.timestamp.length; ++i) {
         brightness_plot.push([new Date(data.timestamp[i]), data.brightness[i]]);
@@ -32,71 +92,14 @@ function plot(data) {
         dew_point = compute_dew(data.humidity[i], data.room_temperature[i]);
         dew_point_plot.push([new Date(data.timestamp[i]), dew_point]);
     }
-
     chart = $.jqplot('chart', [brightness_plot,
                                room_temperature_plot,
                                humidity_plot,
-                               dew_point_plot], {
-        axes: {
-            xaxis: {
-                renderer: $.jqplot.DateAxisRenderer,
-                rendererOptions: {
-                    tickRenderer: $.jqplot.CanvasAxisTickRenderer,
-                    tickOptions: {
-                        angle: -45,
-                    },
-                },
-            },
-            yaxis: {
-                min: 05,
-                max: 35,
-                tickInterval: 3,
-                label: 'Temperature [°C]',
-                labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-            },
-            y2axis: {
-                min: 25,
-                max: 75,
-                tickInterval: 5,
-                label: 'Humidity [%]',
-                labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-            }
-        },
-        grid: grid,
-        series: [
-            { // Luminosity
-                color: 'rgba(127, 127, 127, 0.3)',
-                showMarker: false,
-                shadow: false,
-                fill:true,
-
-            },
-            { // Temperature
-                yaxis: 'yaxis',
-                color: 'rgba(255, 0, 0, 0.6)',
-                showMarker: false,
-                rendererOptions: {
-                    smooth: true
-                },
-            },
-            { // Humidity
-                yaxis: 'y2axis',
-                color: 'rgba(0, 0, 255, 0.6)',
-                showMarker: false,
-                rendererOptions: {
-                    smooth: true
-                },
-            },
-            { // Dew point
-                yaxis: 'yaxis',
-                color: 'rgba(127, 127, 0, 0.6)',
-                showMarker: false,
-                rendererOptions: {
-                    smooth: true
-                },
-            },
-        ]
-    });
+                               dew_point_plot],
+                     chart_config);
+    room_temperature_series = chart.series[1];
+    humidity_series = chart.series[2];
+    dew_point_series = chart.series[3];
 }
 
 
