@@ -2,6 +2,14 @@
 // Set in plot()
 var chart;
 
+// Timestamp of the first shown data point
+// Set in updateSliderLabels()
+var start;
+
+// Timestamp of the last shown data point
+// Set in updateSliderLabels()
+var end;
+
 function plot(data) {
     var grid = {
         gridLineColor: 'rgb(200,200,200)',
@@ -25,7 +33,6 @@ function plot(data) {
         dew_point_plot.push([new Date(data.timestamp[i]), dew_point]);
     }
 
-    $('#chart').empty();
     chart = $.jqplot('chart', [brightness_plot,
                                room_temperature_plot,
                                humidity_plot,
@@ -92,34 +99,34 @@ function plot(data) {
     });
 }
 
-function zeroPad(value) {
-    if (value < 10) {
-        value = '0' + value;
-    }
-    return value;
-}
 
-function prettyPrintTimestamp(stamp) {
-    date = new Date(stamp*1000);
-    year = date.getFullYear();
-    month = zeroPad(date.getMonth()+1);
-    day = zeroPad(date.getDate());
-    hours = zeroPad(date.getHours());
-    minutes = zeroPad(date.getMinutes());
-    return [year, month, day].join('-') + ' ' + [hours, minutes].join(':');
+function replot(event, ui) {
+    $.getJSON('/get_data?start=' + start + '&end=' + end, function(data) {
+        chart.destroy();
+        plot(data);
+    });
 };
 
 function updateSliderLabels(event, ui) {
+    var prettyPrintTimestamp = function(stamp) {
+        var zeroPad = function(value) {
+            if (value < 10) {
+                value = '0' + value;
+            }
+            return value;
+        }
+        var date = new Date(stamp*1000);
+        var year = date.getFullYear();
+        var month = zeroPad(date.getMonth()+1);
+        var day = zeroPad(date.getDate());
+        var hours = zeroPad(date.getHours());
+        var minutes = zeroPad(date.getMinutes());
+        return [year, month, day].join('-') + ' ' + [hours, minutes].join(':');
+    };
     start = $('#timeslot_slider').slider('values', 0);
     end = $('#timeslot_slider').slider('values', 1);
     $('#timeslot_text_start').text(prettyPrintTimestamp(start));
     $('#timeslot_text_end').text(prettyPrintTimestamp(end));
-};
-
-function replot(event, ui) {
-    $.getJSON('/get_data?start=' + start + '&end=' + end, function(data) {
-        plot(data);
-    });
 };
 
 $(document).ready(function() {
