@@ -71,6 +71,22 @@ var chart_config = {
         }
     },
 
+    highlighter: {
+        show: true,
+        tooltipContentEditor: function formatTooltip(str, seriesIndex, pointIndex) {
+            var room_temp = room_temperature_series.data[pointIndex][1].toFixed(1);
+            var humidity = humidity_series.data[pointIndex][1];
+            var dew_point = dew_point_series.data[pointIndex][1].toFixed(1);
+            return '<table><tr>'
+                 + `<td>Room temperature:</td><td>${room_temp}°C</td>`
+                 + '</tr><tr>'
+                 + `<td>Humidity:</td><td>${humidity}&emsp;%</td>`
+                 + '</tr><tr>'
+                 + `<td>Dew point:</td><td>${dew_point}°C</td>`
+                 + '</tr></table>';
+        },
+    },
+
     series: [ brightness_series, room_temperature_series, humidity_series, dew_point_series ]
 };
 
