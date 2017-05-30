@@ -90,78 +90,89 @@ var chart_config = {
     series: [ brightness_series, room_temperature_series, humidity_series, dew_point_series ]
 };
 
-function plot() {
-    $.getJSON('/get_data?start=' + start + '&end=' + end, function(data) {
+function plot(evt) {
+    var convert = function(data) {
+        brightness_data = []
+        for (var i=0; i<data.timestamp.length; ++i) {
+            brightness_data.push([new Date(data.timestamp[i]), data.brightness[i]]);
+        }
+        humidity_data = []
+        for (var i=0; i<data.timestamp.length; ++i) {
+            humidity_data.push([new Date(data.timestamp[i]), data.humidity[i]]);
+        }
+        room_temperature_data = []
+        for (var i=0; i<data.timestamp.length; ++i) {
+            room_temperature_data.push([new Date(data.timestamp[i]), data.room_temperature[i]]);
+        }
+        dew_point_data = []
+        for (var i=0; i<data.timestamp.length; ++i) {
+            dew_point = compute_dew(data.humidity[i], data.room_temperature[i]);
+            dew_point_data.push([new Date(data.timestamp[i]), dew_point]);
+        }
+        return [brightness_data, room_temperature_data, humidity_data, dew_point_data];
+    };
+    var doPlot = function(data) {
         if (chart) {
             chart.destroy();
         }
-        brightness_plot = []
-        for (var i=0; i<data.timestamp.length; ++i) {
-            brightness_plot.push([new Date(data.timestamp[i]), data.brightness[i]]);
-        }
-        humidity_plot = []
-        for (var i=0; i<data.timestamp.length; ++i) {
-            humidity_plot.push([new Date(data.timestamp[i]), data.humidity[i]]);
-        }
-        room_temperature_plot = []
-        for (var i=0; i<data.timestamp.length; ++i) {
-            room_temperature_plot.push([new Date(data.timestamp[i]), data.room_temperature[i]]);
-        }
-        dew_point_plot = []
-        for (var i=0; i<data.timestamp.length; ++i) {
-            dew_point = compute_dew(data.humidity[i], data.room_temperature[i]);
-            dew_point_plot.push([new Date(data.timestamp[i]), dew_point]);
-        }
-        chart = $.jqplot('chart', [brightness_plot,
-                                   room_temperature_plot,
-                                   humidity_plot,
-                                   dew_point_plot],
-                         chart_config);
+        chart = $.jqplot('chart', data, chart_config);
         room_temperature_series = chart.series[1];
         humidity_series = chart.series[2];
         dew_point_series = chart.series[3];
-    });
+    };
+
+    if (evt == 'resize') {
+        doPlot(chart.data);
+    }
+    else {
+        $.getJSON(`/get_data?start=${start}&end=${end}`, function(data) {
+            doPlot(convert(data));
+        });
+    }
 }
 
-function updateSliderLabels(event, ui) {
-    var prettyPrintTimestamp = function(stamp) {
-        var zeroPad = function(value) {
-            if (value < 10) {
-                value = '0' + value;
-            }
-            return value;
-        }
-        var date = new Date(stamp*1000);
-        var year = date.getFullYear();
-        var month = zeroPad(date.getMonth()+1);
-        var day = zeroPad(date.getDate());
-        var hours = zeroPad(date.getHours());
-        var minutes = zeroPad(date.getMinutes());
-        return [year, month, day].join('-') + ' ' + [hours, minutes].join(':');
+$(document).ready(function(evt) {
+    var eventHandler = function(evt) {
+        plot(evt.type);
     };
-    start = $('#timeslot_slider').slider('values', 0);
-    end = $('#timeslot_slider').slider('values', 1);
-    $('#timeslot_text_start').text(prettyPrintTimestamp(start));
-    $('#timeslot_text_end').text(prettyPrintTimestamp(end));
-};
 
-$(document).ready(function() {
-    $(window).resize(function() {
-        chart.replot( { resetAxes: false } );
-    });
+    $(window).resize(eventHandler);
 
     $.getJSON("/get_available_timeslot", function(data) {
         // Initialize time selection slider
-        left_slider = data.end-60*60*24*7
         $("#timeslot_slider").slider({
             range:  true,
             min:    data.start,
             max:    data.end,
-            values: [left_slider, data.end],
-            slide:  updateSliderLabels,
-            stop:   plot
+            values: [data.end-60*60*24*7, data.end],
+            stop:   eventHandler,
         });
-        updateSliderLabels();
-        plot();
+
+        // Bind event handler and trigger initial slider label update
+        $("#timeslot_slider").on('slide', function() {
+            var prettyPrintTimestamp = function(stamp) {
+                var zeroPad = function(value) {
+                    if (value < 10) {
+                        value = '0' + value;
+                    }
+                    return value;
+                }
+                var date = new Date(stamp*1000);
+                var year = date.getFullYear();
+                var month = zeroPad(date.getMonth()+1);
+                var day = zeroPad(date.getDate());
+                var hours = zeroPad(date.getHours());
+                var minutes = zeroPad(date.getMinutes());
+                return [year, month, day].join('-') + ' ' + [hours, minutes].join(':');
+            };
+            start = $('#timeslot_slider').slider('values', 0);
+            end = $('#timeslot_slider').slider('values', 1);
+            $('#timeslot_text_start').text(prettyPrintTimestamp(start));
+            $('#timeslot_text_end').text(prettyPrintTimestamp(end));
+        });
+        $("#timeslot_slider").trigger('slide');
+
+        // Initial plot
+        plot('load');
     });
 });
