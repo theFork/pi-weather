@@ -90,41 +90,38 @@ var chart_config = {
     series: [ brightness_series, room_temperature_series, humidity_series, dew_point_series ]
 };
 
-function plot(data) {
-    brightness_plot = []
-    for (var i=0; i<data.timestamp.length; ++i) {
-        brightness_plot.push([new Date(data.timestamp[i]), data.brightness[i]]);
-    }
-    humidity_plot = []
-    for (var i=0; i<data.timestamp.length; ++i) {
-        humidity_plot.push([new Date(data.timestamp[i]), data.humidity[i]]);
-    }
-    room_temperature_plot = []
-    for (var i=0; i<data.timestamp.length; ++i) {
-        room_temperature_plot.push([new Date(data.timestamp[i]), data.room_temperature[i]]);
-    }
-    dew_point_plot = []
-    for (var i=0; i<data.timestamp.length; ++i) {
-        dew_point = compute_dew(data.humidity[i], data.room_temperature[i]);
-        dew_point_plot.push([new Date(data.timestamp[i]), dew_point]);
-    }
-    chart = $.jqplot('chart', [brightness_plot,
-                               room_temperature_plot,
-                               humidity_plot,
-                               dew_point_plot],
-                     chart_config);
-    room_temperature_series = chart.series[1];
-    humidity_series = chart.series[2];
-    dew_point_series = chart.series[3];
-}
-
-
-function replot(event, ui) {
+function plot() {
     $.getJSON('/get_data?start=' + start + '&end=' + end, function(data) {
-        chart.destroy();
-        plot(data);
+        if (chart) {
+            chart.destroy();
+        }
+        brightness_plot = []
+        for (var i=0; i<data.timestamp.length; ++i) {
+            brightness_plot.push([new Date(data.timestamp[i]), data.brightness[i]]);
+        }
+        humidity_plot = []
+        for (var i=0; i<data.timestamp.length; ++i) {
+            humidity_plot.push([new Date(data.timestamp[i]), data.humidity[i]]);
+        }
+        room_temperature_plot = []
+        for (var i=0; i<data.timestamp.length; ++i) {
+            room_temperature_plot.push([new Date(data.timestamp[i]), data.room_temperature[i]]);
+        }
+        dew_point_plot = []
+        for (var i=0; i<data.timestamp.length; ++i) {
+            dew_point = compute_dew(data.humidity[i], data.room_temperature[i]);
+            dew_point_plot.push([new Date(data.timestamp[i]), dew_point]);
+        }
+        chart = $.jqplot('chart', [brightness_plot,
+                                   room_temperature_plot,
+                                   humidity_plot,
+                                   dew_point_plot],
+                         chart_config);
+        room_temperature_series = chart.series[1];
+        humidity_series = chart.series[2];
+        dew_point_series = chart.series[3];
     });
-};
+}
 
 function updateSliderLabels(event, ui) {
     var prettyPrintTimestamp = function(stamp) {
@@ -162,13 +159,9 @@ $(document).ready(function() {
             max:    data.end,
             values: [left_slider, data.end],
             slide:  updateSliderLabels,
-            stop:   replot
+            stop:   plot
         });
         updateSliderLabels();
-
-        // Initial plot
-        $.getJSON('/get_data?start=' + left_slider + '&end=' + data.end, function(data) {
-            plot(data);
-        });
+        plot();
     });
 });
