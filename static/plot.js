@@ -73,11 +73,16 @@ var chart_config = {
 
     highlighter: {
         show: true,
-        tooltipContentEditor: function formatTooltip(str, seriesIndex, pointIndex) {
+        tooltipContentEditor: function(str, seriesIndex, pointIndex) {
+            var timestamp = room_temperature_series.data[pointIndex][0];
             var room_temp = room_temperature_series.data[pointIndex][1].toFixed(1);
             var humidity = humidity_series.data[pointIndex][1];
             var dew_point = dew_point_series.data[pointIndex][1].toFixed(1);
             return '<table><tr>'
+                 + `<td>Date:</td><td>${formatDate(timestamp)}</td>`
+                 + '</tr><tr>'
+                 + `<td>Time:</td><td>${formatTime(timestamp)}</td>`
+                 + '</tr><tr>'
                  + `<td>Room temperature:</td><td>${room_temp}°C</td>`
                  + '</tr><tr>'
                  + `<td>Humidity:</td><td>${humidity}&emsp;%</td>`
@@ -89,6 +94,21 @@ var chart_config = {
 
     series: [ brightness_series, room_temperature_series, humidity_series, dew_point_series ]
 };
+
+function formatDate(stamp) {
+    var date = new Date(stamp);
+    var year = date.getFullYear();
+    var month = zeroPad(date.getMonth()+1);
+    var day = zeroPad(date.getDate());
+    return [year, month, day].join('-');
+}
+
+function formatTime(stamp) {
+    var date = new Date(stamp);
+    var hours = zeroPad(date.getHours());
+    var minutes = zeroPad(date.getMinutes());
+    return [hours, minutes].join(':');
+}
 
 function plot(evt) {
     var convert = function(data) {
@@ -131,6 +151,13 @@ function plot(evt) {
     }
 }
 
+function zeroPad(value) {
+    if (value < 10) {
+        value = '0' + value;
+    }
+    return value;
+}
+
 $(document).ready(function(evt) {
     var eventHandler = function(evt) {
         plot(evt.type);
@@ -150,25 +177,13 @@ $(document).ready(function(evt) {
 
         // Bind event handler and trigger initial slider label update
         $("#timeslot_slider").on('slide', function() {
-            var prettyPrintTimestamp = function(stamp) {
-                var zeroPad = function(value) {
-                    if (value < 10) {
-                        value = '0' + value;
-                    }
-                    return value;
-                }
-                var date = new Date(stamp*1000);
-                var year = date.getFullYear();
-                var month = zeroPad(date.getMonth()+1);
-                var day = zeroPad(date.getDate());
-                var hours = zeroPad(date.getHours());
-                var minutes = zeroPad(date.getMinutes());
-                return [year, month, day].join('-') + ' ' + [hours, minutes].join(':');
+            start  = $('#timeslot_slider').slider('values', 0);
+            end  = $('#timeslot_slider').slider('values', 1);
+            var formatTimestamp = function(timestamp) {
+                return formatDate(timestamp) + ' ' + formatTime(timestamp);
             };
-            start = $('#timeslot_slider').slider('values', 0);
-            end = $('#timeslot_slider').slider('values', 1);
-            $('#timeslot_text_start').text(prettyPrintTimestamp(start));
-            $('#timeslot_text_end').text(prettyPrintTimestamp(end));
+            $('#timeslot_text_start').text(formatTimestamp(start*1000));
+            $('#timeslot_text_end').text(formatTimestamp(end*1000));
         });
         $("#timeslot_slider").trigger('slide');
 
