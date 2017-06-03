@@ -11,7 +11,7 @@ var start;
 var end;
 
 var brightness_series = {
-    color: 'rgba(127, 127, 127, 0.3)',
+    color: 'rgba(255, 255, 200, 0.5)',
     showMarker: false,
     shadow: false,
     fill: true,
@@ -69,6 +69,10 @@ var chart_config = {
             label: 'Humidity [%]',
             labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
         }
+    },
+
+    grid: {
+        background: '#aaaaaa',
     },
 
     highlighter: {
