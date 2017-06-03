@@ -8,18 +8,25 @@ from flask import url_for # pylint: disable=unused-import
 from database_reader import DatabaseReader
 from piweather_config import DATABASE_PATH, VERSION
 
+
 _APP = Flask(__name__)
 _DB = DatabaseReader(DATABASE_PATH, 1000)
 
-@_APP.route('/')
-def index():
-    """Responds with the rendered page template.
+
+@_APP.route('/get_available_timeslot')
+def get_available_timeslot():
+    """Return a json object containing available timestamp range
     """
-    return render_template('index.html', version=VERSION)
+    return jsonify(_DB.get_available_timeslot())
+
 
 @_APP.route('/get_data')
 def get_data():
-    """Fetch data TODO
+    """Return a json object containing all data for the specified time slot
+
+    GET-Parameters:
+        start:      start timestamp
+        end:        end timestamp
     """
     start = request.args.get('start')
     end = request.args.get('end')
@@ -35,11 +42,13 @@ def get_data():
                    wall_temperature=wall_temperatures)
     return json
 
-@_APP.route('/get_available_timeslot')
-def get_available_timeslot():
-    """Return a json object containing available timestamp range
+
+@_APP.route('/')
+def index():
+    """Responds with the rendered page template.
     """
-    return jsonify(_DB.get_available_timeslot())
+    return render_template('index.html', version=VERSION)
+
 
 if __name__ == '__main__':
     # Start Flask
