@@ -4,6 +4,7 @@
 VERSION = '0.4.0'
 DATABASE_PATH = '/home/haggl/weather.db'
 
+DATABASE_NAME = 'weather'
 BRIGHTNESS_COLUMN = 'brightness'
 TIMESTAMP_COLUMN = 'timestamp'
 HUMIDITY_COLUMN = 'humidity'

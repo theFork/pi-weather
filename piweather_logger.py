@@ -7,7 +7,8 @@ from time import time
 from drivers.ds1820 import read_temperature
 from drivers.htu21df.HTU21DF import htu_reset, read_humidity
 from drivers.tsl256x.tsl256x import TSL256x
-from piweather_config import DATABASE_COLUMNS, DATABASE_PATH, ROOM_TEMP_ADDR, WALL_TEMP_ADDR_0, WALL_TEMP_ADDR_1
+from piweather_config import DATABASE_COLUMNS, DATABASE_NAME, DATABASE_PATH, \
+                             ROOM_TEMP_ADDR, WALL_TEMP_ADDR_0, WALL_TEMP_ADDR_1
 
 def main():
     """Program entry point.
@@ -29,25 +30,23 @@ def main():
     # Generate timestamp
     timestamp = int(time())
 
-    # Open database
-    db_connection = connect(DATABASE_PATH)
-    db_cursor = db_connection.cursor()
+    with connect(DATABASE_PATH) as db_connection:
+        db_cursor = db_connection.cursor()
 
-    # Add table if necessary
-    db_cursor.execute('CREATE TABLE IF NOT EXISTS weather'
-                      ' ({} INTEGER,'
-                      '  {} INTEGER,'
-                      '  {} REAL,'
-                      '  {} REAL,'
-                      '  {} REAL)'.format(*DATABASE_COLUMNS))
+        # Add table if necessary
+        db_cursor.execute('CREATE TABLE IF NOT EXISTS {}'
+                          ' ({} INTEGER,'
+                          '  {} INTEGER,'
+                          '  {} REAL,'
+                          '  {} REAL,'
+                          '  {} REAL)'.format(DATABASE_NAME, *DATABASE_COLUMNS))
 
-    # Insert values
-    query = 'INSERT INTO weather ({}, {}, {}, {}, {}) VALUES (?,?,?,?,?)'.format(*DATABASE_COLUMNS)
-    db_cursor.execute(query, (timestamp, brightness, humidity, room_temperature, wall_temperature))
+        # Insert values
+        query = 'INSERT INTO {} ({}, {}, {}, {}, {}) VALUES (?,?,?,?,?)'
+        db_cursor.execute(query.format(DATABASE_NAME, *DATABASE_COLUMNS),
+                          (timestamp, brightness, humidity, room_temperature, wall_temperature))
+        db_connection.commit()
 
-    # Commit transaction and close
-    db_connection.commit()
-    db_connection.close()
 
 if __name__ == '__main__':
     main()
