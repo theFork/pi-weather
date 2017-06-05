@@ -20,6 +20,20 @@ def get_available_timeslot():
     return jsonify(_DB.get_available_timeslot())
 
 
+@_APP.route('/get_current_humidity')
+def get_current_humidity():
+    """Returns the current room humidity
+    """
+    return jsonify(_DB.get_current_humidity())
+
+
+@_APP.route('/get_current_temperature')
+def get_current_temperature():
+    """Returns the current room temperature
+    """
+    return jsonify(_DB.get_current_temperature())
+
+
 @_APP.route('/get_data')
 def get_data():
     """Return a json object containing all data for the specified time slot

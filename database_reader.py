@@ -4,7 +4,8 @@ from math import ceil
 from datetime import datetime
 from sqlite3 import connect
 
-from piweather_config import DATABASE_COLUMNS, DATABASE_NAME, TIMESTAMP_COLUMN
+from piweather_config import DATABASE_COLUMNS, DATABASE_NAME, HUMIDITY_COLUMN, ROOM_TEMP_COLUMN, \
+                             TIMESTAMP_COLUMN
 
 
 class DatabaseReader:
@@ -18,6 +19,24 @@ class DatabaseReader:
     def __init__(self, filename, quantity):
         self.filename = filename
         self.quantity = quantity
+
+
+    def _get_latest(self, column):
+        """Reads the latest value from the specified column
+
+        Args:
+            column      the database column to read from
+        """
+        with connect(self.filename) as db_con:
+            db_cur = db_con.cursor()
+            db_cur.execute("SELECT MAX({1}) FROM {0}".format(DATABASE_NAME, TIMESTAMP_COLUMN))
+            latest_timestamp = db_cur.fetchone()[0]
+            print("{} :: {} ".format(latest_timestamp, type(latest_timestamp)))
+            query = "SELECT {1} FROM {0} WHERE {2} = ?"
+            query = query.format(DATABASE_NAME, column, TIMESTAMP_COLUMN)
+            db_cur.execute(query, (latest_timestamp,))
+            return db_cur.fetchone()[0]
+
 
     def fetch_time_slot(self, start, end):
         """Reads temperature, humidity and brightness data in the specified time slot.
@@ -79,3 +98,21 @@ class DatabaseReader:
         result['start'] = min_timestamp
         result['end'] = max_timestamp
         return result
+
+
+    def get_current_humidity(self):
+        """Reads the latest room humidity from the database
+
+        Returns:
+            (uint) the current humidity
+        """
+        return self._get_latest(HUMIDITY_COLUMN)
+
+
+    def get_current_temperature(self):
+        """Reads the latest room temperature from the database
+
+        Returns:
+            (float) the current temperature
+        """
+        return self._get_latest(ROOM_TEMP_COLUMN)
