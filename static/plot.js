@@ -26,6 +26,15 @@ var room_temperature_series = {
     },
 };
 
+var wall_temperature_series = {
+    yaxis: 'yaxis',
+    color: 'rgba(127, 0, 0, 0.6)',
+    showMarker: false,
+    rendererOptions: {
+        smooth: true
+    },
+};
+
 var humidity_series = {
     yaxis: 'y2axis',
     color: 'rgba(0, 0, 255, 0.6)',
@@ -80,6 +89,7 @@ var chart_config = {
         tooltipContentEditor: function(str, seriesIndex, pointIndex) {
             var timestamp = room_temperature_series.data[pointIndex][0];
             var room_temp = room_temperature_series.data[pointIndex][1].toFixed(1);
+            var wall_temp = wall_temperature_series.data[pointIndex][1].toFixed(1);
             var humidity = humidity_series.data[pointIndex][1];
             var dew_point = dew_point_series.data[pointIndex][1].toFixed(1);
             return '<table><tr>'
@@ -89,6 +99,8 @@ var chart_config = {
                  + '</tr><tr>'
                  + `<td>Room temperature:</td><td>${room_temp}°C</td>`
                  + '</tr><tr>'
+                 + `<td>Wall temperature:</td><td>${wall_temp}°C</td>`
+                 + '</tr><tr>'
                  + `<td>Humidity:</td><td>${humidity}&emsp;%</td>`
                  + '</tr><tr>'
                  + `<td>Dew point:</td><td>${dew_point}°C</td>`
@@ -96,7 +108,13 @@ var chart_config = {
         },
     },
 
-    series: [ brightness_series, room_temperature_series, humidity_series, dew_point_series ]
+    series: [
+        brightness_series,
+        room_temperature_series,
+        wall_temperature_series,
+        humidity_series,
+        dew_point_series
+    ]
 };
 
 function formatDate(stamp) {
@@ -128,12 +146,17 @@ function plot(evt) {
         for (var i=0; i<data.timestamp.length; ++i) {
             room_temperature_data.push([new Date(data.timestamp[i]), data.room_temperature[i]]);
         }
+        wall_temperature_data = []
+        for (var i=0; i<data.timestamp.length; ++i) {
+            wall_temperature_data.push([new Date(data.timestamp[i]), data.wall_temperature[i]]);
+        }
         dew_point_data = []
         for (var i=0; i<data.timestamp.length; ++i) {
             dew_point = compute_dew(data.humidity[i], data.room_temperature[i]);
             dew_point_data.push([new Date(data.timestamp[i]), dew_point]);
         }
-        return [brightness_data, room_temperature_data, humidity_data, dew_point_data];
+        return [brightness_data, room_temperature_data, wall_temperature_data, humidity_data,
+                dew_point_data];
     };
     var doPlot = function(data) {
         if (chart) {
@@ -141,8 +164,9 @@ function plot(evt) {
         }
         chart = $.jqplot('chart', data, chart_config);
         room_temperature_series = chart.series[1];
-        humidity_series = chart.series[2];
-        dew_point_series = chart.series[3];
+        wall_temperature_series = chart.series[2];
+        humidity_series = chart.series[3];
+        dew_point_series = chart.series[4];
     };
 
     if (evt == 'resize') {
