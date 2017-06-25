@@ -1,7 +1,7 @@
 """This module defines common constants and offers an interface for configuring connected sensors
 """
 
-VERSION = '0.3.1'
+VERSION = '0.4.0'
 DATABASE_PATH = '/home/haggl/weather.db'
 
 BRIGHTNESS_COLUMN = 'brightness'
