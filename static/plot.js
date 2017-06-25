@@ -108,6 +108,23 @@ var chart_config = {
         },
     },
 
+    legend: {
+        renderer: $.jqplot.EnhancedLegendRenderer,
+        show: true,
+        labels: [
+            'Brightness',
+            'Room temperature',
+            'Wall temperature (min)',
+            'Humidity',
+            'Critical humidity (dew point)',
+        ],
+        location: 'n',
+        placement: 'outside',
+        rendererOptions: {
+            numberRows: 1,
+        }
+    },
+
     series: [
         brightness_series,
         room_temperature_series,
