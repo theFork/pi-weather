@@ -2,7 +2,7 @@
 """
 
 VERSION = '0.3.1'
-DATABASE_PATH = '/home/pi/weather.db'
+DATABASE_PATH = '/home/haggl/weather.db'
 
 BRIGHTNESS_COLUMN = 'brightness'
 TIMESTAMP_COLUMN = 'timestamp'

@@ -45,8 +45,8 @@ var humidity_series = {
 };
 
 var dew_point_series = {
-    yaxis: 'yaxis',
-    color: 'rgba(127, 127, 0, 0.6)',
+    yaxis: 'y2axis',
+    color: 'rgba(0, 255, 204, 0.6)',
     showMarker: false,
     rendererOptions: {
         smooth: true
@@ -65,16 +65,16 @@ var chart_config = {
             },
         },
         yaxis: {
-            min: 05,
-            max: 35,
-            tickInterval: 3,
+            min: 10,
+            max: 30,
+            tickInterval: 4,
             label: 'Temperature [°C]',
             labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
         },
         y2axis: {
-            min: 25,
-            max: 75,
-            tickInterval: 5,
+            min: 0,
+            max: 100,
+            tickInterval: 10,
             label: 'Humidity [%]',
             labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
         }
@@ -152,7 +152,7 @@ function plot(evt) {
         }
         dew_point_data = []
         for (var i=0; i<data.timestamp.length; ++i) {
-            dew_point = compute_dew(data.humidity[i], data.room_temperature[i]);
+            dew_point = compute_rh(data.wall_temperature[i], data.room_temperature[i]);
             dew_point_data.push([new Date(data.timestamp[i]), dew_point]);
         }
         return [brightness_data, room_temperature_data, wall_temperature_data, humidity_data,
