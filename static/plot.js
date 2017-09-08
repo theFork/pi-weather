@@ -66,7 +66,7 @@ var chart_config = {
         },
         yaxis: {
             min: 10,
-            max: 30,
+            max: 36,
             tickInterval: 4,
             label: 'Temperature [°C]',
             labelRenderer: $.jqplot.CanvasAxisLabelRenderer,

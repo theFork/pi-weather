@@ -3,9 +3,9 @@ html {
 }
 
 body {
-    background:  #eee;
+    background:  transparent;
     font-family: sans-serif;
-    height:      95%;
+    height:      93%;
 }
 
 a, h1, h2 {
